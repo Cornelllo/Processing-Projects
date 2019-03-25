@@ -2,6 +2,7 @@ ArrayList<Blob> blob = new ArrayList<Blob>();
 float score = 0;
 void setup()  {
   size(900,500);
+  noCursor();
   //frameRate(10);
   
 }
@@ -12,24 +13,25 @@ void draw()  {
   for(int i = 0; i < blob.size(); i++)  {
     
     blob.get(i).run();
-    float size = blob.get(0).coll_size;
+    float size = blob.get(i).coll_size;
     //Changes color of orb when mouse is hovered
-    float d = dist(mouseX,mouseY,blob.get(0).pos.x,blob.get(0).pos.y);
-    blob.get(0).col = 105;
-    if(d <= blob.get(0).coll_size -(blob.get(0).coll_size/2))  {
-      blob.get(0).col = 255; 
+    float d = dist(mouseX,mouseY,blob.get(i).pos.x,blob.get(i).pos.y);
+    blob.get(i).col = 105;
+    if(d >= blob.get(i).coll_size -(blob.get(i).coll_size/2))  {
+      blob.get(i).col = 255; 
       
-      score += 0.8;
+      score += 0.06;
       //if goal is reached reset score  
       if(score >= height-20){
         score = 0;
-        blob.get(0).coll_size = size -20;
+        blob.get(i).coll_size = size + 20;
+        blob.add(new Blob(random(0,width),random(0,height)));
       }
     }
     //gameover
     else  {
       blob.get(0).col = 150;
-      score=0;
+      score = 0;
     }
 
   }
@@ -46,13 +48,19 @@ void draw()  {
   noStroke();
   fill(20,20,200);
   rect(20,height-20,20,-score);
-  println(score);
+  
+  //
+  noStroke();
+  fill(200,30,30);
+  ellipse(mouseX,mouseY,10,10);
   
 }
 
 void mousePressed(){
+  for(int i = 0; i < 2; i++){
   blob.add(new Blob(mouseX,mouseY));
   println("X coordinate: "+mouseX+"   Y coordinate: "+mouseY);
+  }
 }
 void keyPressed()  {
    if(key == 's' || key == 'S')  {
@@ -77,15 +85,15 @@ void keyPressed()  {
 class Blob  {
   PVector pos,vel,acc;
   float size = 7;
-  float coll_size =170;
-  float max_speed = 5;
+  float coll_size = 70;
+  float max_speed = 10;
   boolean bool = false;
   float col = 150;
   Blob(float x,float y)  { 
     
       pos = new PVector(x,y);
-      acc = new PVector(random(-5,5),0);
-      vel = new PVector();
+      acc = new PVector();
+      vel = new PVector(random(-max_speed,max_speed),0);
   }
   
   void displayGuide()  {
@@ -141,19 +149,19 @@ class Blob  {
 
     if(pos.y >= height-coll_size/2)  {
       applyForce(new PVector(0,drag-drag));
-      acc.y *= elasticity;
+      acc.y *= elasticity * 0.4;
       pos.y = height-coll_size/2;
     }
   
     if(pos.x >= width-coll_size/2)  {
       applyForce(new PVector(drag*-1,0));
-      acc.x *= -100;
+      acc.x *= -100 * max_speed/3;
       pos.x = width-coll_size/2;
     }
     
     if(pos.x <= 0 + coll_size/2)  {
       applyForce(new PVector(drag,0));
-      acc.x *= -100;
+      acc.x *= -100 * max_speed/3;
       pos.x = 0 +coll_size/2;
     }
 
