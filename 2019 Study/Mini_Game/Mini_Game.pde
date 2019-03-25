@@ -6,8 +6,7 @@ float y_time = -500;
 void setup()  {
   size(900,500);
   noCursor();
-  //frameRate(10);
-  
+  //frameRate(10); 
 }
 
 void draw()  {
@@ -79,7 +78,8 @@ void draw()  {
   
 }
 
-// perlin noise coorinates
+//*************************************************************************************
+// perlin noise coordinates
 float randomX(){
   float x_off,x;
   x_off = noise(x_time);
@@ -94,8 +94,8 @@ float randomY(){
   
   return y;
 }
-//
-
+//***********************************************************************************
+//mouse and keyboard functions
 void mousePressed(){
   for(int i = 0; i < 2; i++){
   blob.add(new Blob(mouseX,mouseY));
@@ -119,17 +119,29 @@ void keyPressed()  {
         }
      }
    }
+   if(key == 'h' || key =='H') {
+      println("HARD MODE");
+      for(int i = blob.size()-1; i >= 0;  i--)  {
+        blob.get(i).difficulty = !blob.get(i).difficulty;
+      }
+   }
    
   }
+  
 //********************************************************************************************
+//Orb class
 
 class Blob  {
   PVector pos,vel,acc;
+  
   float size = 7;
   float coll_size = 50;
   float max_speed = 8;
-  boolean bool = false;
   float col = 0;
+  
+  boolean bool = false;
+  boolean difficulty = false;
+  
   Blob(float x,float y)  { 
     
       pos = new PVector(x,y);
@@ -178,13 +190,36 @@ class Blob  {
         
   }
   
-  float drag = -0.27;
-  void physics()  {
+  void update()  {
+    
     pos.add(vel);
     vel.add(acc);
     acc.mult(0);
     vel.limit(max_speed);
+
+  }
+  
+  void applyForce(PVector force)  {
+    force.div(size);
+    force.mult(0.4);
+    acc.add(force); 
     
+  }
+  
+  void collide(Blob b)  {
+    PVector d_vel = PVector.sub(pos, b.pos);
+    d_vel.normalize();
+    d_vel.mult(20);
+
+    float distance = dist(pos.x,pos.y,b.pos.x,b.pos.y);
+    if(distance <= coll_size)  {
+      applyForce(d_vel);
+    }
+        
+  }
+  
+  float drag = -0.27;
+  void physics()  {
     //gravity
     applyForce(new PVector(0,1));
     
@@ -208,27 +243,6 @@ class Blob  {
       acc.x *= -100 * max_speed/3;
       pos.x = 0 +coll_size/2;
     }
-
-  }
-  
-  void applyForce(PVector force)  {
-    force.div(size);
-    force.mult(0.4);
-    acc.add(force); 
-    
-  }
-  
-  void collide(Blob b)  {
-    PVector d_vel = PVector.sub(pos, b.pos);
-    d_vel.normalize();
-    d_vel.mult(20);
-
-    float distance = dist(pos.x,pos.y,b.pos.x,b.pos.y);
-    if(distance <= coll_size)  {
-      applyForce(d_vel);
-    }
-    
-    
   }
   
   void border()  {
@@ -245,11 +259,15 @@ class Blob  {
       pos.y = height;
     }
   }
+  
   void run()  {
     display();
-    physics();
-    //border();
+    update();
+    //changes orb behavior on walls
+    if(difficulty == true)
+      border();
+    else 
+      physics();
+     }
+     
   }
-  
- 
-}
