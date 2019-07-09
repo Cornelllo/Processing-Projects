@@ -9,7 +9,7 @@ void setup()  {
   frameRate(30);
   
   println("Factorial of "+x+ " is "+obj.factorial(x));
-  println("Fibonnaci of "+x+ " is "+obj.fibonnaci(x));
+  println("Sum of 1 to "+x+ " is "+obj.sum(x));
   obj.bubbleSort(sort);
   //obj.doSomething(sort);
 }
@@ -29,12 +29,12 @@ class Practice {
     
   }
   
-   int fibonnaci(int value)  {
+   int sum(int value)  {
      
      if(value == 1)  {
        return value;
      }
-     return value + fibonnaci(value-1);
+     return value + sum(value-1);
      
    }
    
